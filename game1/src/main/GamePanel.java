@@ -12,6 +12,7 @@ import graphicsElements.Window;
 import map.Rock;
 import map.Storage;
 import map.Tree;
+import tile.TileManager;
 
 public class GamePanel extends JPanel implements Runnable {
 	//Dimensions
@@ -26,6 +27,7 @@ public class GamePanel extends JPanel implements Runnable {
 	public final int FPS=45;
 	//Essential
 	Thread gameThread;
+	TileManager tileM=new TileManager(this);
 	public KeyHeadler keyH=new KeyHeadler();
 	public MouseHeadler mouseH=new MouseHeadler();
 	//Screen
@@ -105,9 +107,8 @@ public class GamePanel extends JPanel implements Runnable {
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
 		Graphics2D g2=(Graphics2D)g;
-		rock.draw(g2);
-		storage.draw(g2);
-		tree.draw(g2);
+		tileM.draw(g2);
+		
 		colony.draw(g2);
 		botaoTarefas.draw(g2);
 		if(menuT.ativo==true)
