@@ -11,7 +11,7 @@ public class Menu {
 		window.setResizable(false);
 		
 		GamePanel gamepanel=new GamePanel();
-		//gshjak
+		//gshjak..
 		window.add(gamepanel);
 		window.pack();
 		window.setLocationRelativeTo(null);
