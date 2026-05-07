@@ -27,7 +27,7 @@ public class GamePanel extends JPanel implements Runnable {
 	public final int FPS=45;
 	//Essential
 	Thread gameThread;
-	TileManager tileM=new TileManager(this);
+	
 	public KeyHeadler keyH=new KeyHeadler();
 	public MouseHeadler mouseH=new MouseHeadler();
 	//Screen
@@ -38,9 +38,7 @@ public class GamePanel extends JPanel implements Runnable {
 	//Entity
 	Colony colony;
 	//Map
-	public Rock rock;
-	public Tree tree;
-	public Storage storage;
+	public TileManager tileM=new TileManager(this);
 	
 	
 	public GamePanel(){
@@ -50,9 +48,6 @@ public class GamePanel extends JPanel implements Runnable {
 		this.addKeyListener(keyH);
 		this.addMouseListener(mouseH);
 		this.setFocusable(true);
-		this.storage=new Storage(this);
-		this.rock=new Rock(this);
-		this.tree=new Tree(this);
 		this.colony=new Colony(this);
 	}
 	public void startGameThread() {
@@ -108,13 +103,10 @@ public class GamePanel extends JPanel implements Runnable {
 		super.paintComponent(g);
 		Graphics2D g2=(Graphics2D)g;
 		tileM.draw(g2);
-		rock.draw(g2);
-		storage.draw(g2);
-		tree.draw(g2);
 		colony.draw(g2);
 		botaoTarefas.draw(g2);
 		if(menuT.ativo==true)
-		menuT.draw(g2);
+			menuT.draw(g2);
 		g2.dispose();
 	}
 	

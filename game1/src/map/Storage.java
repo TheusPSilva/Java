@@ -10,7 +10,7 @@ public class Storage extends Object{
 	public Storage(GamePanel gp) {
 		this.gp=gp;
 		this.x=gp.telaLarg/2-gp.tileSize;
-		this.y=gp.telaAlt/2-gp.tileSize;
+		this.y=gp.linTela/2-gp.tileSize;
 	}
 	public void draw(Graphics g2) {
 		g2.setColor(Color.orange);
