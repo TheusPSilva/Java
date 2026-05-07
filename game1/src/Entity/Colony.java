@@ -19,9 +19,9 @@ public class Colony {
 	KeyHeadler kh;
 	MouseHeadler mh;
 	public int x,y;
-	public int alvoX,alvoY,depositoX,depositoY;
+	public int alvoX,alvoY,depositoX,depositoY,contadorInterno;
 	public int speed=1;
-	public boolean coletou,emCooldown=false;
+	public boolean emCooldown=false;
 	public String estado="IDLE";
 	
 	public Colony(GamePanel gp) {
@@ -39,14 +39,21 @@ public class Colony {
 		speed=4;
 	}
 	public void update() {
+		if (emCooldown) {
+	        cooldown();
+	        return;   
+	    }
 		if (estado.equals("IDLE")) {
 			if(gp.menuT.coletarPedra.pressed==true) {
 				setDestino(rk.x,rk.y);
 				irParaAlvo();
+				
 			}
 			if(gp.menuT.coletarMadeira.pressed==true) {
 				setDestino(tr.x,tr.y);
 				irParaAlvo();
+				
+				
 			}
 			
 		}
@@ -58,13 +65,11 @@ public class Colony {
 	}
 	public void irParaDeposito() {
 		if(x<st.x) x+=speed;
-		else if(x>st.y) x-=speed;
+		else if(x>st.x) x-=speed;
 		if(y<st.y) y+=speed;
 		else if(y>st.y) y-=speed;
-		if(x==st.x && y==st.y && coletou==true ) { 
+		if(x==st.x && y==st.y && estado=="COLETOU" ) { 
 			estado="IDLE";
-			coletou=false;
-			//TESTE PAAR DIRETORIO..
 		}
 	}
 	public void irParaAlvo() {
@@ -72,11 +77,11 @@ public class Colony {
 		else if(x>alvoX) x-=speed;
 		if(y<alvoY) y+=speed;
 		else if(y>alvoY) y-=speed;
-		if(x==alvoX && y==alvoY && coletou==false) { 
+		if(x==alvoX && y==alvoY && estado!="COLETOU") { 
+			
 			emCooldown=true;
 			cooldown();
 			estado="COLETOU"; 
-			coletou=true;
 		
 		}
 	}
@@ -89,13 +94,14 @@ public class Colony {
 		this.depositoY=st.y;
 	}
 	public void cooldown() {
-		int i;
-		for(i=0;i<=100;i++){
-			if(i==100) {
-				emCooldown=false;
-				i=0;
-			}
-		}
+		emCooldown = true;
+	    contadorInterno++;
+	    
+	    if (contadorInterno >= 110) { 
+	        emCooldown = false;
+	        contadorInterno = 0; 
+	        estado = "COLETOU"; 
+	    }
 	}
 	
 	public void draw(Graphics g2) {

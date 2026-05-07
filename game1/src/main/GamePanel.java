@@ -81,6 +81,7 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 	
 	public void update() {
+		
 		if (mouseH.clicou) {
 	        menuT.tratarClique(mouseH.mouseX, mouseH.mouseY, botaoTarefas);
 	        
