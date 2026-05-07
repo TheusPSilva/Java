@@ -108,7 +108,9 @@ public class GamePanel extends JPanel implements Runnable {
 		super.paintComponent(g);
 		Graphics2D g2=(Graphics2D)g;
 		tileM.draw(g2);
-		
+		rock.draw(g2);
+		storage.draw(g2);
+		tree.draw(g2);
 		colony.draw(g2);
 		botaoTarefas.draw(g2);
 		if(menuT.ativo==true)
