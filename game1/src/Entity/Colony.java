@@ -64,6 +64,7 @@ public class Colony {
 		if(x==st.x && y==st.y && coletou==true ) { 
 			estado="IDLE";
 			coletou=false;
+			//TESTE PAAR DIRETORIO
 		}
 	}
 	public void irParaAlvo() {
