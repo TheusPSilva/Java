@@ -3,6 +3,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
+
 import javax.swing.JPanel;
 import Entity.Colony;
 import graphicsElements.Window;
@@ -28,9 +30,9 @@ public class GamePanel extends JPanel implements Runnable {
 	//Screen
 	public int menuTX=telaLarg/2-480;
 	public int menuTY=tileSize*2;
-	public Window menuT=new Window(this,menuTX,menuTY,480,480);
+	public Window estatisticas=new Window(this,"",menuTX,menuTY,480,480);
 	//Entity
-	Colony colony;
+	ArrayList<Colony> colony;
 	//Map
 	public TileManager tileM=new TileManager(this);
 	
@@ -42,7 +44,11 @@ public class GamePanel extends JPanel implements Runnable {
 		this.addKeyListener(keyH);
 		this.addMouseListener(mouseH);
 		this.setFocusable(true);
-		this.colony=new Colony(this);
+		this.colony=new ArrayList<>();
+		colony.add(new Colony(this,"Antoin",100,100));
+		colony.add(new Colony(this,"Jao",200,200));
+		colony.add(new Colony(this,"Jose",300,300));
+		colony.add(new Colony(this,"Chico",500,200));
 	}
 	public void startGameThread() {
 		gameThread=new Thread(this);
@@ -72,19 +78,23 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 	
 	public void update() {
-		timer();
-	    colony.update();
+	   timer();
+	   for(Colony c: colony) {
+		   c.update();
+	   }
+	   mouseH.clicou = false;
 	}
 
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
 		Graphics2D g2=(Graphics2D)g;
 		tileM.draw(g2);
-		colony.draw(g2);
-		menuT.inventory(g2);
-		menuT.cicloTempo(g2, this);
-		if(menuT.ativo)
-			menuT.draw(g2);
+		for(Colony c: colony) {
+			c.draw(g2);
+		}
+		estatisticas.inventory(g2);
+		estatisticas.cicloTempo(g2, this);
+		
 		g2.dispose();
 	}
 	public void timer() {

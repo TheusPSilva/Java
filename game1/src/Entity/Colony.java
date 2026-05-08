@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import graphicsElements.Button;
+import graphicsElements.Window;
 import main.GamePanel;
 import main.KeyHeadler;
 import main.MouseHeadler;
@@ -15,23 +16,34 @@ public class Colony extends Entity {
 	KeyHeadler kh;
 	MouseHeadler mh;
 	public Button menu;
+	public Button fechar;
+	public Button coletarPedra;
+	public String selecionado="";
+	public Button coletarMadeira;
+	public Window menuT;
 	public int alvoX,alvoY,depositoX,depositoY,contadorInterno;
 	public int speed=1;
 	public int idTarefa;
 	public boolean emCooldown=false;
 	public String estado="IDLE";//IDLE, COLETOU,DEPOSITOU
 	
-	public Colony(GamePanel gp) {
+	public Colony(GamePanel gp,String name,int x,int y) {
 		this.gp=gp;
 		this.mh=gp.mouseH;
+		this.name=name;
+		this.x=x;
+		this.y=y;
+		menuT=new Window(gp,name,240,96,288,288);
 		menu=new Button(x,y,gp.tileSize,gp.tileSize,"",new Color(0, 0, 0, 0));
+		fechar=new Button(gp.menuTX*2,gp.menuTY,gp.tileSize,gp.tileSize,"X",Color.white);
+		coletarPedra=new Button(gp.menuTX+48,gp.menuTY+48,gp.tileSize,gp.tileSize,"",new Color(255, 0, 0, 150));
+		coletarMadeira=new Button(gp.menuTX+48,gp.menuTY+gp.tileSize*3,gp.tileSize,gp.tileSize,"",new Color(255, 0, 0, 150));
+		
 		setValues();
 		pegarImagemJogador();
 	}
 	
 	public void setValues() {
-		x=200;
-		y=200;
 		speed=4;
 		direction="down";
 		
@@ -72,12 +84,12 @@ public class Colony extends Entity {
 				}
 				spriteCounter=0;
 			}
-			if(gp.menuT.coletarPedra.pressed==true) {
+			if(coletarPedra.pressed==true) {
 				localizarAlvo(1);
 				irParaAlvo();
 				
 			}
-			if(gp.menuT.coletarMadeira.pressed==true) {
+			if(coletarMadeira.pressed==true) {
 				localizarAlvo(3);
 				irParaAlvo();
 				
@@ -123,9 +135,9 @@ public class Colony extends Entity {
 	}
 	public void atualizarQtdRecurso() {
 		if(idTarefa==1 && estado.equals("DEPOSITOU"))
-			gp.menuT.qtdPedra+=1;
+			gp.estatisticas.qtdPedra+=1;
 		if(idTarefa==3 && estado.equals("DEPOSITOU"))
-			gp.menuT.qtdMadeira+=1;
+			gp.estatisticas.qtdMadeira+=1;
 	}
 	public void atualizarPosicaoBotao() {
 		this.menu.x=x;
@@ -133,22 +145,25 @@ public class Colony extends Entity {
 	}
 	public void checarBotaoclicado() {
 		if (gp.mouseH.clicou) {
-	        gp.menuT.tratarClique(gp.mouseH.mouseX, gp.mouseH.mouseY,menu);
+	        menuT.tratarClique(gp.mouseH.mouseX, gp.mouseH.mouseY,menu);
 	        
-	        if (gp.menuT.ativo) {
+	        if (menuT.ativo) {
 	            
-	            if (gp.menuT.coletarPedra.foiClicado(gp.mouseH.mouseX, gp.mouseH.mouseY)) {
-	                gp.menuT.coletarPedra.pressed = true;
-	                gp.menuT.coletarMadeira.pressed = false;
+	            if (coletarPedra.foiClicado(gp.mouseH.mouseX, gp.mouseH.mouseY)) {
+	                coletarPedra.pressed = true;
+	                coletarPedra.text="X";
+	                coletarMadeira.text="";
+	                coletarMadeira.pressed = false;
 	            } 
-	            else if (gp.menuT.coletarMadeira.foiClicado(gp.mouseH.mouseX, gp.mouseH.mouseY)) {
-	                gp.menuT.coletarMadeira.pressed = true;
-	                gp.menuT.coletarPedra.pressed = false;
+	            else if (coletarMadeira.foiClicado(gp.mouseH.mouseX, gp.mouseH.mouseY)) {
+	                coletarMadeira.pressed = true;
+	                coletarPedra.text="";
+	                coletarMadeira.text="X";
+	                coletarPedra.pressed = false;
 	            }
-	            else if(gp.menuT.fechar.foiClicado(gp.mouseH.mouseX, gp.mouseH.mouseY))
-	            	gp.menuT.ativo=false;
+	            else if(fechar.foiClicado(gp.mouseH.mouseX, gp.mouseH.mouseY))
+	            	menuT.ativo=false;
 	        }
-	        gp.mouseH.clicou = false;
 	    }
 		
 		
@@ -196,9 +211,17 @@ public class Colony extends Entity {
 			}
 		}
 	}
-	
-	public void draw(Graphics g2) {
+	public void desenharMenuT(Graphics g2) {
 		menu.draw(g2);
+		if(menuT.ativo) {
+			menuT.draw(g2);
+			coletarPedra.drawBotaoTarefas(g2);
+			coletarMadeira.drawBotaoTarefas(g2);
+			fechar.draw(g2);
+		}
+	}
+	public void draw(Graphics g2) {
+		desenharMenuT(g2);
 		BufferedImage image=null;
 		switch(direction) {
 		case "up":
