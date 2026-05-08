@@ -3,15 +3,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-
 import javax.swing.JPanel;
-
 import Entity.Colony;
-import graphicsElements.Button;
 import graphicsElements.Window;
-import map.Rock;
-import map.Storage;
-import map.Tree;
 import tile.TileManager;
 
 public class GamePanel extends JPanel implements Runnable {
@@ -27,6 +21,7 @@ public class GamePanel extends JPanel implements Runnable {
 	public final int FPS=45;
 	//Essential
 	Thread gameThread;
+	public int hora=0,dia=0,semana=0;
 	
 	public KeyHeadler keyH=new KeyHeadler();
 	public MouseHeadler mouseH=new MouseHeadler();
@@ -34,7 +29,6 @@ public class GamePanel extends JPanel implements Runnable {
 	public int menuTX=telaLarg/2-480;
 	public int menuTY=tileSize*2;
 	public Window menuT=new Window(this,menuTX,menuTY,480,480);
-	Button botaoTarefas= new Button(tileSize*0,tileSize*1,tileSize,tileSize,"Tarefas",Color.gray);
 	//Entity
 	Colony colony;
 	//Map
@@ -78,24 +72,7 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 	
 	public void update() {
-		
-		if (mouseH.clicou) {
-	        menuT.tratarClique(mouseH.mouseX, mouseH.mouseY, botaoTarefas);
-	        
-	        if (menuT.ativo) {
-	            
-	            if (menuT.coletarPedra.foiClicado(mouseH.mouseX, mouseH.mouseY)) {
-	                menuT.coletarPedra.pressed = true;
-	                menuT.coletarMadeira.pressed = false;
-	            } 
-	            else if (menuT.coletarMadeira.foiClicado(mouseH.mouseX, mouseH.mouseY)) {
-	                menuT.coletarMadeira.pressed = true;
-	                menuT.coletarPedra.pressed = false;
-	            }
-	        }
-
-	        mouseH.clicou = false;
-	    }
+		timer();
 	    colony.update();
 	}
 
@@ -104,10 +81,22 @@ public class GamePanel extends JPanel implements Runnable {
 		Graphics2D g2=(Graphics2D)g;
 		tileM.draw(g2);
 		colony.draw(g2);
-		botaoTarefas.draw(g2);
-		if(menuT.ativo==true)
+		menuT.inventory(g2);
+		menuT.cicloTempo(g2, this);
+		if(menuT.ativo)
 			menuT.draw(g2);
 		g2.dispose();
+	}
+	public void timer() {
+		hora+=1;
+		if(hora==100) {
+		hora=0;
+		dia+=1;
+		}
+		if(dia==7) {
+			dia=0;
+			semana+=1;
+		}
 	}
 	
 }

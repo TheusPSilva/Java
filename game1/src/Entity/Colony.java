@@ -4,42 +4,40 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-
 import javax.imageio.ImageIO;
-
 import graphicsElements.Button;
 import main.GamePanel;
 import main.KeyHeadler;
 import main.MouseHeadler;
-import map.Rock;
-import map.Storage;
-import map.Tree;
 
 public class Colony extends Entity {
 	GamePanel gp;
 	KeyHeadler kh;
 	MouseHeadler mh;
+	public Button menu;
 	public int alvoX,alvoY,depositoX,depositoY,contadorInterno;
 	public int speed=1;
+	public int idTarefa;
 	public boolean emCooldown=false;
-	public String estado="IDLE";
+	public String estado="IDLE";//IDLE, COLETOU,DEPOSITOU
 	
 	public Colony(GamePanel gp) {
 		this.gp=gp;
 		this.mh=gp.mouseH;
+		menu=new Button(x,y,gp.tileSize,gp.tileSize,"",new Color(0, 0, 0, 0));
 		setValues();
 		pegarImagemJogador();
 	}
 	
 	public void setValues() {
-		x=gp.tileSize;
-		y=gp.tileSize;
+		x=200;
+		y=200;
 		speed=4;
 		direction="down";
+		
 	}
 	public void pegarImagemJogador() {
 		try {
-			//Load the images to the variables.
 			up1=ImageIO.read(getClass().getResourceAsStream("/player/boy_up_1.png"));
 			up2=ImageIO.read(getClass().getResourceAsStream("/player/boy_up_2.png"));
 			down1=ImageIO.read(getClass().getResourceAsStream("/player/boy_down_1.png"));
@@ -55,11 +53,15 @@ public class Colony extends Entity {
 		}
 	}
 	public void update() {
+		atualizarPosicaoBotao();
+		checarBotaoclicado();
+		atualizarQtdRecurso();
+		
 		if (emCooldown) {
 	        cooldown();
 	        return;   
 	    }
-		if (estado.equals("IDLE")) {
+		if (estado!="COLETOU") {
 			spriteCounter++;
 			if(spriteCounter>12) {
 				if(spriteNum==1) {
@@ -73,10 +75,12 @@ public class Colony extends Entity {
 			if(gp.menuT.coletarPedra.pressed==true) {
 				localizarAlvo(1);
 				irParaAlvo();
+				
 			}
 			if(gp.menuT.coletarMadeira.pressed==true) {
 				localizarAlvo(3);
-				irParaAlvo();			
+				irParaAlvo();
+				
 			}
 		}
 		else if (estado.equals("COLETOU")&& emCooldown==false) { 
@@ -100,7 +104,7 @@ public class Colony extends Entity {
 		if(y<depositoY) { y+=speed;direction="down";}
 		else if(y>depositoY) { y-=speed;direction="up";}
 		if(x==depositoX && y==depositoY && estado=="COLETOU" ) { 
-			estado="IDLE";
+			estado="DEPOSITOU";
 			direction="down";
 		}
 	}
@@ -117,9 +121,37 @@ public class Colony extends Entity {
 		
 		}
 	}
-	public void setDestino(int dx, int dy) {
-		this.alvoX=dx;
-		this.alvoY=dy;
+	public void atualizarQtdRecurso() {
+		if(idTarefa==1 && estado.equals("DEPOSITOU"))
+			gp.menuT.qtdPedra+=1;
+		if(idTarefa==3 && estado.equals("DEPOSITOU"))
+			gp.menuT.qtdMadeira+=1;
+	}
+	public void atualizarPosicaoBotao() {
+		this.menu.x=x;
+		this.menu.y=y;
+	}
+	public void checarBotaoclicado() {
+		if (gp.mouseH.clicou) {
+	        gp.menuT.tratarClique(gp.mouseH.mouseX, gp.mouseH.mouseY,menu);
+	        
+	        if (gp.menuT.ativo) {
+	            
+	            if (gp.menuT.coletarPedra.foiClicado(gp.mouseH.mouseX, gp.mouseH.mouseY)) {
+	                gp.menuT.coletarPedra.pressed = true;
+	                gp.menuT.coletarMadeira.pressed = false;
+	            } 
+	            else if (gp.menuT.coletarMadeira.foiClicado(gp.mouseH.mouseX, gp.mouseH.mouseY)) {
+	                gp.menuT.coletarMadeira.pressed = true;
+	                gp.menuT.coletarPedra.pressed = false;
+	            }
+	            else if(gp.menuT.fechar.foiClicado(gp.mouseH.mouseX, gp.mouseH.mouseY))
+	            	gp.menuT.ativo=false;
+	        }
+	        gp.mouseH.clicou = false;
+	    }
+		
+		
 	}
 	public void cooldown() {
 		emCooldown = true;
@@ -148,6 +180,7 @@ public class Colony extends Entity {
 				}
 			}
 		}
+		this.idTarefa=idRecurso;
 		this.alvoX=tempX;
 		this.alvoY=tempY;
 		this.estado="IDLE";
@@ -165,6 +198,7 @@ public class Colony extends Entity {
 	}
 	
 	public void draw(Graphics g2) {
+		menu.draw(g2);
 		BufferedImage image=null;
 		switch(direction) {
 		case "up":
