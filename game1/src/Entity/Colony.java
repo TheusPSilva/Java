@@ -18,7 +18,6 @@ public class Colony extends Entity {
 	public Button menu;
 	public Button fechar;
 	public Button coletarPedra;
-	public String selecionado="";
 	public Button coletarMadeira;
 	public Window menuT;
 	public int alvoX,alvoY,depositoX,depositoY,contadorInterno;
@@ -45,19 +44,20 @@ public class Colony extends Entity {
 	
 	public void setValues() {
 		speed=4;
-		direction="down";
+		direction="idle";
 		
 	}
 	public void pegarImagemJogador() {
 		try {
-			up1=ImageIO.read(getClass().getResourceAsStream("/player/boy_up_1.png"));
-			up2=ImageIO.read(getClass().getResourceAsStream("/player/boy_up_2.png"));
-			down1=ImageIO.read(getClass().getResourceAsStream("/player/boy_down_1.png"));
-			down2=ImageIO.read(getClass().getResourceAsStream("/player/boy_down_2.png"));
-			left1=ImageIO.read(getClass().getResourceAsStream("/player/boy_left_1.png"));
-			left2=ImageIO.read(getClass().getResourceAsStream("/player/boy_left_2.png"));
-			right1=ImageIO.read(getClass().getResourceAsStream("/player/boy_right_1.png"));
-			right2=ImageIO.read(getClass().getResourceAsStream("/player/boy_right_2.png"));
+			idle=ImageIO.read(getClass().getResourceAsStream("/playerNoClothes/boyN_idle_1.png"));
+			up1=ImageIO.read(getClass().getResourceAsStream("/playerNoClothes/boyN_up_1.png"));
+			up2=ImageIO.read(getClass().getResourceAsStream("/playerNoClothes/boyN_up_2.png"));
+			down1=ImageIO.read(getClass().getResourceAsStream("/playerNoClothes/boyN_down_1.png"));
+			down2=ImageIO.read(getClass().getResourceAsStream("/playerNoClothes/boyN_down_2.png"));
+			left1=ImageIO.read(getClass().getResourceAsStream("/playerNoClothes/boyN_left_1.png"));
+			left2=ImageIO.read(getClass().getResourceAsStream("/playerNoClothes/boyN_left_2.png"));
+			right1=ImageIO.read(getClass().getResourceAsStream("/playerNoClothes/boyN_right_1.png"));
+			right2=ImageIO.read(getClass().getResourceAsStream("/playerNoClothes/boyN_right_2.png"));
 			
 			
 		}catch(IOException e) {
@@ -65,25 +65,17 @@ public class Colony extends Entity {
 		}
 	}
 	public void update() {
+		animacao();
 		atualizarPosicaoBotao();
 		checarBotaoclicado();
-		atualizarQtdRecurso();
+		
 		
 		if (emCooldown) {
 	        cooldown();
 	        return;   
 	    }
 		if (estado!="COLETOU") {
-			spriteCounter++;
-			if(spriteCounter>12) {
-				if(spriteNum==1) {
-					spriteNum=2;
-				}
-				else if(spriteNum==2) {
-					spriteNum=1;
-				}
-				spriteCounter=0;
-			}
+			
 			if(coletarPedra.pressed==true) {
 				localizarAlvo(1);
 				irParaAlvo();
@@ -96,18 +88,9 @@ public class Colony extends Entity {
 			}
 		}
 		else if (estado.equals("COLETOU")&& emCooldown==false) { 
-			spriteCounter++;
-			if(spriteCounter>12) {
-				if(spriteNum==1) {
-					spriteNum=2;
-				}
-				else if(spriteNum==2) {
-					spriteNum=1;
-				}
-				spriteCounter=0;
-			}
 			localizarDeposito();
 			irParaDeposito();
+			atualizarQtdRecurso();
 		}
 	}
 	public void irParaDeposito() {
@@ -115,9 +98,9 @@ public class Colony extends Entity {
 		else if(x>depositoX) { x-=speed; direction="left";}
 		if(y<depositoY) { y+=speed;direction="down";}
 		else if(y>depositoY) { y-=speed;direction="up";}
-		if(x==depositoX && y==depositoY && estado=="COLETOU" ) { 
+		if(x==depositoX && y==depositoY && estado.equals("COLETOU") && !estado.equals("DEPOSITOU")) { 
 			estado="DEPOSITOU";
-			direction="down";
+			direction="idle";
 		}
 	}
 	public void irParaAlvo() {
@@ -126,7 +109,7 @@ public class Colony extends Entity {
 		if(y<alvoY) y+=speed;
 		else if(y>alvoY) y-=speed;
 		if(x==alvoX && y==alvoY && estado!="COLETOU") { 
-			direction="down";
+			direction="idle";
 			emCooldown=true;
 			cooldown();
 			estado="COLETOU"; 
@@ -150,16 +133,36 @@ public class Colony extends Entity {
 	        if (menuT.ativo) {
 	            
 	            if (coletarPedra.foiClicado(gp.mouseH.mouseX, gp.mouseH.mouseY)) {
-	                coletarPedra.pressed = true;
-	                coletarPedra.text="X";
-	                coletarMadeira.text="";
-	                coletarMadeira.pressed = false;
+	                if(coletarPedra.pressed == false) {
+	                	coletarPedra.pressed=true;
+	                	coletarPedra.text="X";
+	                	coletarMadeira.text="";
+	                	coletarMadeira.pressed = false;
+	                	if(estado!="COLETOU")
+	                		estado="MINERANDO";
+	                }
+	                else if(coletarPedra.pressed == true) {
+	                	coletarPedra.pressed=false;
+	                	coletarPedra.text="";
+	                	if(estado!="COLETOU")
+	                		estado="IDLE";
+	                }
 	            } 
 	            else if (coletarMadeira.foiClicado(gp.mouseH.mouseX, gp.mouseH.mouseY)) {
-	                coletarMadeira.pressed = true;
-	                coletarPedra.text="";
-	                coletarMadeira.text="X";
-	                coletarPedra.pressed = false;
+	                if(coletarMadeira.pressed == false) {
+		                coletarMadeira.pressed=true;
+		                coletarMadeira.text="X";
+		                coletarPedra.text="";
+		                coletarPedra.pressed = false;
+		                if(!estado.equals("COLETOU"))
+	                		estado="SERRANDO";
+	                }
+	                else if(coletarMadeira.pressed == true) {
+	                	coletarMadeira.pressed=false;
+	                	coletarMadeira.text="";
+	                	if(!estado.equals("COLETOU"))
+	                		estado="IDLE";
+	                }
 	            }
 	            else if(fechar.foiClicado(gp.mouseH.mouseX, gp.mouseH.mouseY))
 	            	menuT.ativo=false;
@@ -167,6 +170,18 @@ public class Colony extends Entity {
 	    }
 		
 		
+	}
+	public void animacao() {
+		spriteCounter++;
+		if(spriteCounter>12) {
+			if(spriteNum==1) {
+				spriteNum=2;
+			}
+			else if(spriteNum==2) {
+				spriteNum=1;
+			}
+			spriteCounter=0;
+		}
 	}
 	public void cooldown() {
 		emCooldown = true;
@@ -198,7 +213,7 @@ public class Colony extends Entity {
 		this.idTarefa=idRecurso;
 		this.alvoX=tempX;
 		this.alvoY=tempY;
-		this.estado="IDLE";
+		this.estado="TRABALHANDO";
 	}
 	public void localizarDeposito() {
 		for(int l=0;l<gp.linTela;l++) {
@@ -224,6 +239,15 @@ public class Colony extends Entity {
 		desenharMenuT(g2);
 		BufferedImage image=null;
 		switch(direction) {
+		case "idle":
+			if(spriteNum==1) {
+				image=idle;
+			}
+			if(spriteNum==2) {
+				image=idle;
+			}
+			break;
+		
 		case "up":
 			if(spriteNum==1) {
 				image=up1;
